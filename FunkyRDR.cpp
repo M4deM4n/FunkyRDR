@@ -5,6 +5,15 @@
 
 const std::string CMD_POSITION = "p";
 const std::string CMD_TYPEWRITER = "t";
+const std::string CMD_WAIT = "w";
+const std::string CMD_TYPEWRITER_DELAYED = "td";
+const std::string CMD_CENTER = "c";
+const std::string CMD_TYPEWRITER_CENTER = "tc";
+const std::string CMD_INPUT = "i";
+const std::string CMD_FILL = "f";
+const std::string CMD_FLASH_FILL = "ff";
+const std::string CMD_CLEAR = "clr";
+
 
 void FunkyRDR::Init() {
 	initscr();
@@ -18,7 +27,6 @@ void FunkyRDR::Init() {
 	tokens["SCREEN_COLS"] = std::to_string(col);
 
 }
-
 
 void FunkyRDR::ReadScript(const char * script)
 {
@@ -78,13 +86,13 @@ void FunkyRDR::ReadScript(const char * script)
 						continue;
 					}
 					else {
-						CurseHelper::typeWriter("Command 'p' requires arguments.");
+						CurseHelper::typeWriter("Command 'p' requires 2 arguments.");
 						return;
 					}
 				}
 
 				// w - Sleeps for n miliseconds.
-				if (cmd == "w") {
+				if (cmd == CMD_WAIT) {
 					int wait = std::stoi(command, nullptr, 10);
 					Sleep(wait);
 					line.erase(0, tpos + chrCmdTerm.length());
@@ -102,7 +110,7 @@ void FunkyRDR::ReadScript(const char * script)
 				}
 
 				// td - Writes text to screen at user defined throttled rate.
-				if (cmd == "td") {
+				if (cmd == CMD_TYPEWRITER_DELAYED) {
 					if ((pspos = command.find(chrParmSep)) != std::string::npos) {
 						std::string filteredCMD = ReplaceTokens(command);
 						std::string strdelay = filteredCMD.substr(0, pspos);
@@ -121,7 +129,7 @@ void FunkyRDR::ReadScript(const char * script)
 				}
 
 				// c - Clears the screen then writes text to center screen.
-				if (cmd == "c") {
+				if (cmd == CMD_CENTER) {
 					clear();
 					std::string filteredCMD = ReplaceTokens(command);
 					sprintf_s(lineBuffer, filteredCMD.c_str());
@@ -132,7 +140,7 @@ void FunkyRDR::ReadScript(const char * script)
 				}
 
 				// tc - Clears the screen then writes text to the center screen at a throttled rate.
-				if (cmd == "tc") {
+				if (cmd == CMD_TYPEWRITER_CENTER) {
 					clear();
 					std::string filteredCMD = ReplaceTokens(command);
 					sprintf_s(lineBuffer, filteredCMD.c_str());
@@ -144,7 +152,7 @@ void FunkyRDR::ReadScript(const char * script)
 
 				// i - Get's input from the user, stores it in a map referenced by a user 
 				// defined token.
-				if (cmd == "i") {
+				if (cmd == CMD_INPUT) {
 					getstr(inputBuffer);
 					tokens[command] = inputBuffer;
 					line.erase(0, tpos + chrCmdTerm.length());
@@ -152,7 +160,7 @@ void FunkyRDR::ReadScript(const char * script)
 				}
 
 				// f - Fills the screen buffer with a single char.
-				if (cmd == "f") {
+				if (cmd == CMD_FILL) {
 					CurseHelper::fillScreen(command[0], row, col);
 					refresh();
 					line.erase(0, tpos + chrCmdTerm.length());
@@ -160,7 +168,7 @@ void FunkyRDR::ReadScript(const char * script)
 				}
 
 				// ff - Flash fills the screen with an array of chars at a user defined rate.
-				if (cmd == "ff") {
+				if (cmd == CMD_FLASH_FILL) {
 					if ((pspos = command.find(chrParmSep)) != std::string::npos) {
 						std::string sdelay = command.substr(0, pspos);
 						std::string chars = command.substr(pspos + 1, command.length());
@@ -174,7 +182,7 @@ void FunkyRDR::ReadScript(const char * script)
 			}
 			else {
 				// clr - Clears the screen
-				if (command == "clr") {
+				if (command == CMD_CLEAR) {
 					clear();
 					refresh();
 					line.erase(0, tpos + chrCmdTerm.length());
